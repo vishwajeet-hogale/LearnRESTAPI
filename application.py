@@ -40,6 +40,10 @@ def get_drinks():
         drink_data = {"name":d.name,"description":d.description}
         op.append(drink_data)
     return {"drinks":op}
+@app.route("/drinks/<int:id>")
+def get_drink(id):
+    drink = Drinks.query.get_or_404(id)
+    return {"name":drink.name,"description":drink.description}
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)

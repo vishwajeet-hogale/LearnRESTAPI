@@ -1,21 +1,12 @@
-from flask import Flask
+from flask import Flask,request
 from flask_sqlalchemy import SQLAlchemy
 import json
-#  from flask_sqlalchemy import SQLAlchemy
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-app.config['SECRET_KEY'] = "aidbaibdadi3jrlwnfnsdkcnkdabcbkdsnlv"
+# app.config['SECRET_KEY'] = "aidbaibdadi3jrlwnfnsdkcnkdabcbkdsnlv"
 
 db = SQLAlchemy(app)
-# db = SQLAlchemy()
-# def create_app():
-#     app = Flask(__name__)
-#     db.init_app(app)
-
-#     return app 
-# app = create_app()
-
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 
 
 class Drinks(db.Model):
@@ -44,6 +35,20 @@ def get_drinks():
 def get_drink(id):
     drink = Drinks.query.get_or_404(id)
     return {"name":drink.name,"description":drink.description}
+@app.route("/drink",methods=["POST"])
+def add_drink():
+    drink = Drinks(name= str(request.json["name"]),description=str(request.json["desc"]))
+    db.session.add(drink)
+    db.session.commit()
+    return {'id':drink.id}
+@app.route("/drinks/<id>",methods=["DELETE"])
+def delete_drink(id):
+    drink = Drinks.query.get(id)
+    if drink is None:
+        return {"Error":"Not Found"}
+    db.session.delete(drink)
+    db.session.commit()
+    return {"message":"Deleted"}
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)
